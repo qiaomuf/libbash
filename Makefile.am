@@ -156,8 +156,8 @@ GENERATED_LEXER_CPP = libbashLexer.cpp
 GENERATED_LEXER_H = libbashLexer.h
 GENERATED_PARSER_CPP = libbashParser.cpp
 GENERATED_PARSER_H = libbashParser.h
-GENERATED_WALKER_CPP = libbashWalker.cpp
-GENERATED_WALKER_H = libbashWalker.h
+GENERATED_WALKER_CPP = libbashWalker.cpp libbashWalker_libbashPattern.cpp
+GENERATED_WALKER_H = libbashWalker.h libbashWalker_libbashPattern.h
 BUILT_SOURCES = $(GENERATED_PARSER_CPP) \
 				$(GENERATED_PARSER_H) \
 				$(GENERATED_LEXER_CPP) \
@@ -179,6 +179,7 @@ CLEANFILES = $(GENERATED_PARSER_CPP) \
 			 libbashWalker.h.md5 \
 			 bashast/java_libbash.tokens \
 			 libbashWalker.tokens \
+			 libbashPattern.tokens \
 			 javagrammar.run \
 			 cgrammar.run \
 			 walker.run \
@@ -270,6 +271,7 @@ libcppbash_la_LIBADD = libparser.la libwalker.la
 
 EXTRA_DIST = bashast/bashast.g \
 			 bashast/libbashWalker.g \
+			 bashast/libbashPattern.g \
 			 bashast/features_script/features.sh \
 			 bashast/features_script/features.sh.ast \
 			 bashast/features_script/features.sh.tokens \
@@ -321,7 +323,7 @@ libbash.tokens.md5: libbash.tokens
 # Avoid initializing C++ type to NULL by sed, variables whose name
 # starts with libbash_ will be stripped
 # The date information is removed from libbashWalker.h in order to make the md5 trick working
-walker.run: bashast/libbashWalker.g libbash.tokens.md5
+walker.run: bashast/libbashWalker.g bashast/libbashPattern.g libbash.tokens.md5
 	$(AM_V_at)touch $@.tmp
 	$(AM_V_at)if test -a libbashWalker.h; then mv libbashWalker.h libbashWalker.h.bak; fi
 	$(AM_V_GEN)$(ANTLR) -fo . $<
@@ -334,6 +336,7 @@ walker.run: bashast/libbashWalker.g libbash.tokens.md5
 		fi
 	$(AM_V_at)sed -i -e 's/\(libbash_.*\) = NULL/\1/' libbashWalker.c
 	$(AM_V_at)mv libbashWalker.{c,cpp}
+	$(AM_V_at)mv libbashWalker_libbashPattern.{c,cpp}
 	$(AM_V_at)mv $@.tmp $@
 
 $(GENERATED_PARSER_CPP): cgrammar.run

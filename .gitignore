@@ -45,6 +45,7 @@ libbashLexer.*
 libbashParser.*
 libbashWalker.h*
 libbashWalker.cpp
+libbashWalker_libbashPattern.*
 *.pdf
 *.aux
 config.*
