@@ -650,7 +650,7 @@ function:	FUNCTION BLANK+ function_name ((BLANK* parens wspace*)|wspace) compoun
 //does not contain a dollar sign, nor is quoted in any way.  Nor
 //does it consist of all digits.
 function_name
-	:	(NUMBER|DIGIT)? ~(DOLLAR|SQUOTE|DQUOTE|LPAREN|RPAREN|BLANK|EOL|NUMBER|DIGIT|SINGLE_QUOTED_STRING_TOKEN) ~(DOLLAR|SQUOTE|DQUOTE|LPAREN|RPAREN|BLANK|EOL)*;
+	:	(NAME|MINUS)+;
 parens	:	LPAREN BLANK* RPAREN;
 name	:	NAME
 	|	LETTER
