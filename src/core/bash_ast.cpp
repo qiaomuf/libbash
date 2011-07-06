@@ -56,18 +56,16 @@ bash_ast::bash_ast(const std::string& script_path,
 
 void bash_ast::init_parser(const std::string& script, const std::string& script_path)
 {
-  input.reset(antlr3NewAsciiStringInPlaceStream(
+  input.reset(antlr3StringStreamNew(
     reinterpret_cast<pANTLR3_UINT8>(const_cast<char*>(script.c_str())),
+    ANTLR3_ENC_UTF8,
     // We do not support strings longer than the max value of ANTLR3_UNIT32
     boost::numeric_cast<ANTLR3_UINT32>(script.size()),
-    NULL));
+    reinterpret_cast<pANTLR3_UINT8>(const_cast<char*>(script_path.c_str()))
+    ));
 
   if(!input)
     throw libbash::parse_exception("Unable to open file " + script + " due to malloc() failure");
-
-  input->fileName = input->strFactory->newStr(
-      input->strFactory,
-      reinterpret_cast<pANTLR3_UINT8>(const_cast<char*>(script_path.c_str())));
 
   lexer.reset(libbashLexerNew(input.get()));
   if(!lexer)

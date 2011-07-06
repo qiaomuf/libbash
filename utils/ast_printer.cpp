@@ -97,8 +97,9 @@ static void print_parser_token(std::istream& input,
   std::stringstream script_stream;
   script_stream << input.rdbuf();
   std::string script(script_stream.str());
-  antlr_pointer<ANTLR3_INPUT_STREAM_struct> input_stream(antlr3NewAsciiStringInPlaceStream(
+  antlr_pointer<ANTLR3_INPUT_STREAM_struct> input_stream(antlr3StringStreamNew(
     reinterpret_cast<pANTLR3_UINT8>(const_cast<char*>(script.c_str())),
+    ANTLR3_ENC_UTF8,
     boost::numeric_cast<ANTLR3_UINT32>(script.size()),
     NULL));
   if(!input)
