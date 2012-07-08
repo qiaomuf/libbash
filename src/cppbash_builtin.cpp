@@ -44,6 +44,9 @@
 #include "builtins/shopt_builtin.h"
 #include "builtins/source_builtin.h"
 #include "builtins/unset_builtin.h"
+#include "builtins/read_builtin.h"
+#include "builtins/set_builtin.h"
+#include "builtins/unset_builtin.h"
 
 namespace qi = boost::spirit::qi;
 namespace karma = boost::spirit::karma;
@@ -73,6 +76,8 @@ cppbash_builtin::builtins_type& cppbash_builtin::builtins() {
       {"printf", boost::factory<printf_builtin*>()},
       {"let", boost::factory<let_builtin*>()},
       {"unset", boost::factory<unset_builtin*>()},
+      {"read", boost::factory<read_builtin*>()},
+      {"set", boost::factory<set_builtin*>()},
   });
   return *p;
 }

@@ -248,7 +248,7 @@ std::string::size_type interpreter::get_length(const std::string& name,
                                  const unsigned index) const
 {
   auto var = resolve_variable(name);
-  if(!var)
+  if(!is_valid(var, name))
     return 0;
   return var->get_length(index);
 }
@@ -256,7 +256,7 @@ std::string::size_type interpreter::get_length(const std::string& name,
 variable::size_type interpreter::get_array_length(const std::string& name) const
 {
   auto var = resolve_variable(name);
-  if(!var)
+  if(!is_valid(var, name))
     return 0;
   return var->get_array_length();
 }
@@ -310,6 +310,21 @@ void interpreter::define_function_arguments(scope& current_stack,
     positional_args[i] = arguments[i - 1];
 
   current_stack["*"].reset(new variable("*", positional_args));
+}
+
+void interpreter::define_positional_arguments(const std::vector<std::string>::const_iterator begin,
+                                              const std::vector<std::string>::const_iterator end)
+{
+  std::map<unsigned, std::string> positional_args;
+  std::vector<std::string>::const_iterator iter = begin;
+
+  for(auto i = 1u; iter != end ; ++i, ++iter)
+    positional_args[i] = *iter;
+
+  if(local_members.size() < 1)
+    define("*", positional_args);
+  else
+    define_local("*", positional_args);
 }
 
 namespace
@@ -451,6 +466,24 @@ void interpreter::set_additional_option(const std::string& name, bool value)
 {
   auto iter = additional_options.find(name);
   if(iter == additional_options.end())
+    throw libbash::illegal_argument_exception(name + " is not a valid bash option");
+
+  iter->second = value;
+}
+
+bool interpreter::get_option(const char name) const
+{
+  auto iter = options.find(name);
+  if(iter == options.end())
+    throw libbash::illegal_argument_exception("Invalid bash option");
+
+  return iter->second;
+}
+
+void interpreter::set_option(const char name, bool value)
+{
+  auto iter = options.find(name);
+  if(iter == options.end())
     throw libbash::illegal_argument_exception(name + " is not a valid bash option");
 
   iter->second = value;

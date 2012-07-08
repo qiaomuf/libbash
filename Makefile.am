@@ -105,6 +105,9 @@ cppunittests_SOURCES =  test/run_tests.cpp \
 						src/builtins/tests/shift_tests.cpp \
 						src/builtins/tests/shopt_tests.cpp \
 						src/builtins/tests/return_tests.cpp \
+						src/builtins/tests/read_tests.cpp \
+						src/builtins/tests/set_tests.cpp \
+						src/builtins/tests/unset_tests.cpp \
 						src/builtins/tests/printf_tests.cpp \
 						test/test.h \
 						test/test.cpp \
@@ -236,6 +239,10 @@ libbash_la_SOURCES = include/common.h \
 					 src/builtins/inherit_builtin.cpp \
 					 src/builtins/unset_builtin.h \
 					 src/builtins/unset_builtin.cpp \
+					 src/builtins/read_builtin.h \
+					 src/builtins/read_builtin.cpp \
+					 src/builtins/set_builtin.h \
+					 src/builtins/set_builtin.cpp \
 					 src/builtins/builtin_exceptions.h \
 					 $(GENERATED_PARSER_C) \
 					 $(GENERATED_PARSER_H) \

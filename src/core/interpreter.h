@@ -189,6 +189,20 @@ public:
     _out = &std::cout;
   }
 
+  /// \brief check whether a variable is valid and can be used
+  /// \param var variable
+  /// \return whether the variable is valid
+  bool is_valid(const std::shared_ptr<variable>& var, const std::string& name) const
+  {
+    if(var)
+      return true;
+
+    if(get_option('u'))
+      throw libbash::unsupported_exception(name + ": unbound variable");
+
+    return false;
+  }
+
   /// \brief resolve string/long variable, local scope will be
   ///        checked first, then global scope
   /// \param name variable name
@@ -199,10 +213,25 @@ public:
   T resolve(const std::string& name, const unsigned index=0) const
   {
     auto var = resolve_variable(name);
-    if(var)
+    if(is_valid(var, name))
+    {
+      if(get_option('u') && var->is_unset(index))
+      {
+        if(name == "*")
+          throw libbash::unsupported_exception("$" + boost::lexical_cast<std::string>(index) + ": unbound variable");
+        else if(index == 0)
+          throw libbash::unsupported_exception(name + ": unbound variable");
+        else
+          throw libbash::unsupported_exception(name + "[" + boost::lexical_cast<std::string>(index) + "]: unbound variable");
+      }
       return var->get_value<T>(index);
+    }
     else
+    {
+      if(get_option('u'))
+        throw libbash::unsupported_exception(name + ": unbound variable");
       return T{};
+    }
   }
 
   /// \brief resolve array variable
@@ -212,7 +241,7 @@ public:
   bool resolve_array(const std::string& name, std::vector<T>& values) const
   {
     auto var = resolve_variable(name);
-    if(!var)
+    if(!is_valid(var, name))
       return false;
 
     var->get_all_values(values);
@@ -467,7 +496,10 @@ public:
   variable::size_type get_max_index(const std::string& name) const
   {
     auto var = resolve_variable(name);
-    return var ? var->get_max_index() : 0;
+    if(is_valid(var, name))
+      return var->get_max_index();
+    else
+      return 0;
   }
 
   /// \brief get all array elements concatenated by space
@@ -496,6 +528,17 @@ public:
   /// \return zero unless the name is not a valid shell option
   void set_additional_option(const std::string& name, bool value);
 
+  /// \brief get the status of shell optional behavior
+  /// \param name the option name
+  /// \return zero unless the name is not a valid shell option
+  bool get_option(const char name) const;
+
+  /// \brief set the status of shell optional behavior
+  /// \param name the option name
+  /// \param[in] value true if option is enabled, false otherwise
+  /// \return zero unless the name is not a valid shell option
+  void set_option(const char name, bool value);
+
   /// \brief return an iterator referring to the first variable
   /// \return iterator referring to the first variable
   option_iterator additional_options_begin() const
@@ -520,6 +563,9 @@ public:
   /// \param shift_number the number to be shifted
   /// \return zero unless n is greater than $# or less than zero, non-zero otherwise.
   int shift(int shift_number);
+
+  void define_positional_arguments(const std::vector<std::string>::const_iterator begin,
+                                   const std::vector<std::string>::const_iterator end);
 
   /// \brief perform expansion like ${var//foo/bar}
   /// \param value the value to be expanded
