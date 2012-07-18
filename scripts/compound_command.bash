@@ -84,6 +84,18 @@ do
     done
 done
 
+function positional_for()
+{
+    for arg; do
+      echo $arg
+    done
+
+    for arg do
+      echo $arg
+    done
+}
+positional_for foo bar
+
 i=0;
 while [ $i != 4 ]
 do
@@ -373,3 +385,25 @@ case ${EAPI} in
     *)  
         echo "Unknown EAPI=${EAPI} for ruby-ng.eclass"
 esac
+
+if [[   1 == 0 ||
+        1 == 0
+|| 1 == 0
+        || 1 == 0 || # Extra space here
+        1 == 1 ]]; then
+        echo or
+fi
+
+if [[   1 == 1 # Extra space here
+        && 1 == 1 && 1 == 1 &&
+        1 == 1&&
+        1 == 1 ]]; then
+        echo and
+fi
+
+if [[   1 == 1 &&
+        1 == 0 || 1 == 1
+        && 1 == 1 ||
+        1 == 1 && 1 == 1 ]]; then
+        echo and or
+fi

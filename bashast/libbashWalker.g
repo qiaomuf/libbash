@@ -637,7 +637,8 @@ simple_command
 	std::vector<std::string> libbash_args;
 	bool split;
 }
-	:string_expr{ split = ($string_expr.libbash_value != "local" && $string_expr.libbash_value != "export"); }
+	:string_expr{ split = ($string_expr.libbash_value != "local" && $string_expr.libbash_value != "export"
+	                                                             && $string_expr.libbash_value != "declare"); }
 	(argument[libbash_args, split])* execute_command[$string_expr.libbash_value, libbash_args];
 
 execute_command[std::string& name, std::vector<std::string>& libbash_args]
@@ -649,7 +650,7 @@ execute_command[std::string& name, std::vector<std::string>& libbash_args]
 	bool redirection = false;
 }
 @init {
-	if(name != "local" && name != "set")
+	if(name != "local" && name != "set" && name != "declare" && name != "eval")
 		current_scope.reset(new interpreter::local_scope(*walker));
 }
 	:var_def[true]* (redirect[out, err, in]{ redirection = true; })* {
@@ -842,11 +843,11 @@ for_expr
 @declarations {
 	ANTLR3_MARKER commands_index;
 	std::vector<std::string> splitted_values;
+	bool in_array = false;
 
 	ANTLR3_MARKER condition_index;
 }
 	:^(FOR libbash_string=name_base
-		// Empty value as $@ is not supported currently
 		(string_expr
 		{
 			// Word splitting happens here
@@ -854,10 +855,11 @@ for_expr
 				splitted_values.push_back($string_expr.libbash_value);
 			else
 				walker->split_word($string_expr.libbash_value, splitted_values);
+			in_array = true;
 		}
-		)+
+		)*
 		{
-			if(splitted_values.empty())
+			if(splitted_values.empty() && in_array)
 			{
 				//skip the body
 				seek_to_next_tree(ctx);
@@ -865,6 +867,9 @@ for_expr
 			}
 			else
 			{
+				if(!in_array)
+					walker->resolve_array<std::string>("*", splitted_values);
+
 				commands_index = INDEX();
 				for(auto iter = splitted_values.begin(); iter != splitted_values.end(); ++iter)
 				{

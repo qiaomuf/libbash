@@ -398,6 +398,8 @@ command_atom
 			-> ^(STRING EXPORT) ^(STRING builtin_variable_definition_item)
 	|	(LOCAL) => LOCAL BLANK builtin_variable_definition_item
 			-> ^(STRING LOCAL) ^(STRING builtin_variable_definition_item)
+	|	(DECLARE) => DECLARE BLANK builtin_variable_definition_item
+			-> ^(STRING DECLARE) ^(STRING builtin_variable_definition_item)
 	|	command_name
 		(
 			(BLANK? parens) => BLANK? parens wspace? compound_command
@@ -530,11 +532,11 @@ semiel
 for_expr
 	:	FOR BLANK?
 		(
-			name wspace
+			name
 			(
-				IN for_each_value* BLANK? (SEMIC|EOL) wspace?
-				|SEMIC wspace?
-				|
+				wspace IN for_each_value* BLANK? (SEMIC|EOL) wspace?
+				| wspace? SEMIC wspace?
+				| wspace
 			) DO wspace command_list semiel DONE -> ^(FOR name for_each_value* command_list)
 			|	LLPAREN EOL?
 				// initilization
@@ -612,9 +614,9 @@ condition_expr
 #endif
 
 keyword_condition_and
-	:	keyword_condition_primary (BLANK!? LOGICAND^ BLANK!? keyword_condition_primary)*;
+	:	keyword_condition_primary ( wspace!? LOGICAND^ wspace!? keyword_condition_primary)*;
 keyword_condition
-	:	keyword_condition_and (BLANK!? LOGICOR^ BLANK!? keyword_condition_and)*;
+	:	keyword_condition_and ( wspace!? LOGICOR^ wspace!? keyword_condition_and)*;
 keyword_negation_primary
 	:	BANG BLANK keyword_condition_primary -> ^(NEGATION keyword_condition_primary);
 keyword_condition_primary
@@ -782,7 +784,7 @@ string_part
 ns_string_part
 	:	num|name|escaped_character
 	|OTHER|EQUALS|PCT|PCTPCT|PLUS|MINUS|DOT|DOTDOT|COLON
-	|TILDE|LSQUARE|RSQUARE|CARET|POUND|COMMA|EXPORT|LOCAL|AT
+	|TILDE|LSQUARE|RSQUARE|CARET|POUND|COMMA|EXPORT|LOCAL|DECLARE|AT
 	// Escaped characters
 	|ESC_RPAREN|ESC_LPAREN|ESC_DOLLAR|ESC_GT|ESC_LT|ESC_TICK|ESC_DQUOTE
 	// The following is for filename expansion
@@ -1151,6 +1153,7 @@ QMARK	:	'?';
 
 LOCAL	:	'local';
 EXPORT	:	'export';
+DECLARE	:	'declare';
 LOGICAND	:	'&&';
 LOGICOR	:	'||';
 

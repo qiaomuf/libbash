@@ -17,6 +17,8 @@ IUSE=""
 echo $IUSE
 RDEPEND="dev-db/sqlite:3"
 echo $RDEPEND
+declare RDEPEND
+echo $RDEPEND
 DEPEND="${RDEPEND}
 echo $DEPEND
 		dev-util/pkgconfig"
@@ -26,6 +28,7 @@ PATCH=("1.patch" 2.patch)
 echo ${PATCH[@]}
 ARRAY01=(1 2 3 [5]=4 5)
 echo ${ARRAY01[@]}
+declare ARRAY02
 ARRAY02=(1 2 3)
 echo ${ARRAY02[@]}
 ARRAY02[2]=4
@@ -82,12 +85,15 @@ echo $FOO005
 function foo() {
     local -i foo=1
     local -a bar=(1 2 3)
+    eval local foobar=23
     echo $foo
     echo ${bar[@]}
+    echo foobar
 }
 foo
 bar=@
 echo $bar
+echo $foobar
 ARRAY11=(1 2 3 [10]=15)
 ARRAY11+=(1 [15]=20)
 echo ${ARRAY11[@]}
@@ -96,3 +102,7 @@ echo ${ARRAY12[@]}
 ARRAY13=()
 ARRAY13+=(4 5 6)
 echo ${ARRAY13[@]}
+declare num=42
+echo $num
+unset num
+echo $num
